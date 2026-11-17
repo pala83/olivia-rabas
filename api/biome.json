@@ -1,0 +1,14 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.6.8/schema.json",
+	"root": false,
+	"extends": "//",
+	"files": {
+		"includes": ["**", "!drizzle"]
+	},
+	"plugins": [
+		{
+			"path": "./biome-plugins/no-runtime-typeof.grit",
+			"includes": ["src/**", "tests/**"]
+		}
+	]
+}

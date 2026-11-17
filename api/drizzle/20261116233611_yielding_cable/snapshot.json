@@ -1,0 +1,228 @@
+{
+	"version": "7",
+	"dialect": "sqlite",
+	"id": "b0017ab4-308d-45c8-913b-e34764e48732",
+	"prevIds": ["00000000-0000-0000-0000-000000000000"],
+	"ddl": [
+		{
+			"name": "COMANDA",
+			"entityType": "tables"
+		},
+		{
+			"name": "ITEM_COMANDA",
+			"entityType": "tables"
+		},
+		{
+			"name": "PRODUCTO",
+			"entityType": "tables"
+		},
+		{
+			"table": "COMANDA",
+			"name": "id",
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": true,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "COMANDA",
+			"name": "customer_name",
+			"type": "text",
+			"notNull": true,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "COMANDA",
+			"name": "notes",
+			"type": "text",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "COMANDA",
+			"name": "created_at",
+			"type": "text",
+			"notNull": true,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "COMANDA",
+			"name": "status",
+			"type": "text",
+			"notNull": true,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "ITEM_COMANDA",
+			"name": "id",
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": true,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "ITEM_COMANDA",
+			"name": "comanda_id",
+			"type": "integer",
+			"notNull": true,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "ITEM_COMANDA",
+			"name": "producto_id",
+			"type": "integer",
+			"notNull": true,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "ITEM_COMANDA",
+			"name": "quantity",
+			"type": "integer",
+			"notNull": true,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "ITEM_COMANDA",
+			"name": "with_salt",
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "PRODUCTO",
+			"name": "id",
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": true,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "PRODUCTO",
+			"name": "name",
+			"type": "text",
+			"notNull": true,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "PRODUCTO",
+			"name": "category",
+			"type": "text",
+			"notNull": true,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "PRODUCTO",
+			"name": "contains_alcohol",
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "PRODUCTO",
+			"name": "brand",
+			"type": "text",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"entityType": "columns"
+		},
+		{
+			"table": "ITEM_COMANDA",
+			"name": "ITEM_COMANDA_comanda_id",
+			"columns": [
+				{
+					"value": "comanda_id",
+					"isExpression": false
+				}
+			],
+			"isUnique": false,
+			"where": null,
+			"origin": "manual",
+			"entityType": "indexes"
+		},
+		{
+			"table": "ITEM_COMANDA",
+			"name": "fk_ITEM_COMANDA_comanda_id_COMANDA_id_fk",
+			"columns": ["comanda_id"],
+			"tableTo": "COMANDA",
+			"columnsTo": ["id"],
+			"onUpdate": "NO ACTION",
+			"onDelete": "CASCADE",
+			"nameExplicit": false,
+			"entityType": "fks"
+		},
+		{
+			"table": "ITEM_COMANDA",
+			"name": "fk_ITEM_COMANDA_producto_id_PRODUCTO_id_fk",
+			"columns": ["producto_id"],
+			"tableTo": "PRODUCTO",
+			"columnsTo": ["id"],
+			"onUpdate": "NO ACTION",
+			"onDelete": "NO ACTION",
+			"nameExplicit": false,
+			"entityType": "fks"
+		},
+		{
+			"table": "COMANDA",
+			"name": "COMANDA_pk",
+			"columns": ["id"],
+			"nameExplicit": false,
+			"entityType": "pks"
+		},
+		{
+			"table": "ITEM_COMANDA",
+			"name": "ITEM_COMANDA_pk",
+			"columns": ["id"],
+			"nameExplicit": false,
+			"entityType": "pks"
+		},
+		{
+			"table": "PRODUCTO",
+			"name": "PRODUCTO_pk",
+			"columns": ["id"],
+			"nameExplicit": false,
+			"entityType": "pks"
+		}
+	],
+	"renames": []
+}

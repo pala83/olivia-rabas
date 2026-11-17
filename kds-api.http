@@ -1,0 +1,191 @@
+# API del KDS: requests para la extensión "REST Client" de VS Code (humao.rest-client).
+#
+# 1. Levantar la API: `bun dev` (o `bun run dev:api`) desde la raíz del repositorio.
+# 2. Hacer clic en "Send Request" sobre cada request.
+# 3. Ejecutar primero "Crear una comanda": las requests siguientes reutilizan su id (@comandaId).
+#
+# Los ids de producto salen del catálogo inicial (api/src/db/seed.ts):
+# 1 Papas, 2 Rabas (FOOD) · 3 Cerveza, 4 Gaseosa, 5 Agua (DRINK).
+#
+# REST Client no soporta WebSocket, por eso los eventos de /ws (order.created,
+# order.status_changed) se prueban en los tests automáticos de api/tests/.
+
+@baseUrl = http://localhost:3000
+@comidaId = 2
+@bebidaId = 3
+
+# ---------- Productos ----------
+
+# Listar el catálogo de productos → 200
+# @name listarProductos
+GET {{baseUrl}}/api/products
+
+###
+
+# ---------- Comandas (recepcionista) ----------
+
+# Crear una comanda con comida (con sal), una bebida y una nota → 201, estado ORDERED
+# @name crearComanda
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+	"customerName": "Olivia",
+	"notes": "sin limón",
+	"items": [
+		{ "productId": {{comidaId}}, "quantity": 2, "withSalt": true },
+		{ "productId": {{bebidaId}}, "quantity": 1 }
+	]
+}
+
+###
+
+@comandaId = {{crearComanda.response.body.$.id}}
+
+# Listar todas las comandas, de la más antigua a la más reciente → 200
+# @name listarComandas
+GET {{baseUrl}}/api/orders
+
+###
+
+# Obtener la comanda creada arriba → 200
+# @name obtenerComanda
+GET {{baseUrl}}/api/orders/{{comandaId}}
+
+###
+
+# Obtener solo los ítems de la comanda creada arriba → 200
+# @name obtenerItemsComanda
+GET {{baseUrl}}/api/orders/{{comandaId}}/items
+
+###
+
+# ---------- Cambios de estado (cocinero) ----------
+
+# Pasar la comanda a "En preparación" → 200
+# @name iniciarPreparacion
+PATCH {{baseUrl}}/api/orders/{{comandaId}}/status
+Content-Type: application/json
+
+{ "status": "IN_PREPARATION" }
+
+###
+
+# Marcar la comanda como "Demorada" → 200
+# @name marcarDemorada
+PATCH {{baseUrl}}/api/orders/{{comandaId}}/status
+Content-Type: application/json
+
+{ "status": "DELAYED" }
+
+###
+
+# Marcar la comanda como "Finalizada" → 200
+# @name finalizarComanda
+PATCH {{baseUrl}}/api/orders/{{comandaId}}/status
+Content-Type: application/json
+
+{ "status": "FINISHED" }
+
+###
+
+# ---------- Errores esperados: 400 Bad Request ----------
+
+# Rechazar una comanda con el nombre del cliente vacío → 400
+# @name rechazarClienteVacio
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{ "customerName": "   ", "items": [{ "productId": {{comidaId}}, "quantity": 1, "withSalt": true }] }
+
+###
+
+# Rechazar una comanda sin ítems → 400
+# @name rechazarSinItems
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{ "customerName": "Ana", "items": [] }
+
+###
+
+# Rechazar una cantidad que no es un entero positivo → 400
+# @name rechazarCantidadCero
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{ "customerName": "Ana", "items": [{ "productId": {{comidaId}}, "quantity": 0, "withSalt": true }] }
+
+###
+
+# Rechazar un producto que no existe → 400
+# @name rechazarProductoInexistente
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{ "customerName": "Ana", "items": [{ "productId": 9999, "quantity": 1, "withSalt": true }] }
+
+###
+
+# Rechazar comida sin withSalt (es obligatorio para FOOD) → 400
+# @name rechazarComidaSinSal
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{ "customerName": "Ana", "items": [{ "productId": {{comidaId}}, "quantity": 1 }] }
+
+###
+
+# Rechazar una bebida con withSalt (solo aplica a FOOD) → 400
+# @name rechazarBebidaConSal
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{ "customerName": "Ana", "items": [{ "productId": {{bebidaId}}, "quantity": 1, "withSalt": true }] }
+
+###
+
+# Rechazar un body que no es JSON válido → 400
+# @name rechazarJsonInvalido
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{nope
+
+###
+
+# Rechazar un estado que no es ORDERED, IN_PREPARATION, DELAYED ni FINISHED → 400
+# @name rechazarEstadoInvalido
+PATCH {{baseUrl}}/api/orders/{{comandaId}}/status
+Content-Type: application/json
+
+{ "status": "COOKING" }
+
+###
+
+# ---------- Errores esperados: 404 Not Found ----------
+
+# Obtener una comanda que no existe → 404
+# @name obtenerComandaInexistente
+GET {{baseUrl}}/api/orders/9999
+
+###
+
+# Obtener los ítems de una comanda que no existe → 404
+# @name obtenerItemsComandaInexistente
+GET {{baseUrl}}/api/orders/9999/items
+
+###
+
+# Cambiar el estado de una comanda que no existe → 404
+# @name cambiarEstadoComandaInexistente
+PATCH {{baseUrl}}/api/orders/9999/status
+Content-Type: application/json
+
+{ "status": "FINISHED" }
+
+###
+
+# Llamar a una ruta que no existe → 404
+# @name rutaInexistente
+GET {{baseUrl}}/api/unknown

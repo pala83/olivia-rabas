@@ -1,34 +1,24 @@
 {
 	"name": "olivia-rabas",
 	"private": true,
-	"version": "0.0.0",
 	"type": "module",
+	"workspaces": [
+		"client",
+		"api"
+	],
 	"scripts": {
-		"dev": "vite",
-		"build": "tsc -b && vite build",
+		"dev": "bun --filter '*' dev",
+		"dev:api": "bun --filter @olivia-rabas/api dev",
+		"dev:client": "bun --filter @olivia-rabas/client dev",
+		"test": "bun --filter @olivia-rabas/api test",
+		"check": "biome check .",
 		"lint": "biome lint .",
 		"lint:fix": "biome lint --write .",
 		"format": "biome format --write .",
 		"format:check": "biome format .",
-		"check": "biome check .",
-		"check:fix": "biome check --write .",
-		"preview": "vite preview"
-	},
-	"dependencies": {
-		"react": "^19.3.1",
-		"react-dom": "^19.3.1"
+		"check:fix": "biome check --write ."
 	},
 	"devDependencies": {
-		"@babel/core": "^7.29.7",
-		"@biomejs/biome": "2.6.8",
-		"@rolldown/plugin-babel": "^0.3.0",
-		"@types/babel__core": "^7.20.5",
-		"@types/node": "^24.19.2",
-		"@types/react": "^19.3.0",
-		"@types/react-dom": "^19.3.0",
-		"@vitejs/plugin-react": "^6.1.2",
-		"babel-plugin-react-compiler": "^1.0.0",
-		"typescript": "~7.0.2",
-		"vite": "^8.3.6"
+		"@biomejs/biome": "2.6.8"
 	}
 }
