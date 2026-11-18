@@ -1,102 +1,136 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource/atkinson-hyperlegible/400.css";
-@import "@fontsource/atkinson-hyperlegible/700.css";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+@import "@fontsource/lilita-one";
 
-/* Design source: "KDS · Sistema de diseño" (01 · Fundamentos). Light theme only. */
+/*
+ * Design source: Claude Design canvas "KDS · Sistema de diseño" (Fritería, 01 · Fundamentos).
+ * Only the values of the existing shadcn variables change; no new variables.
+ * Roles reused for the KDS:
+ *   --chart-1 Pedido · --primary En preparación · --destructive Urgente / Demorado
+ *   --chart-2 A tiempo / Entregado (band) · --chart-3 Entregado badge · --chart-5 Entregado text
+ *   --chart-4 Atención · --muted Tiempo total
+ *   --sidebar kraft · --sidebar-border kraft edge · --sidebar-accent steel (pase)
+ *   --sidebar-primary brand gold · --font-serif Lilita One (display titles)
+ */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-heading: var(--font-sans);
-	--font-sans: "Atkinson Hyperlegible", Verdana, Arial, sans-serif;
-	--color-ring: var(--ring);
-	--color-input: var(--input);
-	--color-border: var(--border);
-	--color-destructive: var(--destructive);
-	--color-accent-foreground: var(--accent-foreground);
-	--color-accent: var(--accent);
-	--color-muted-foreground: var(--muted-foreground);
-	--color-muted: var(--muted);
-	--color-secondary-foreground: var(--secondary-foreground);
-	--color-secondary: var(--secondary);
-	--color-primary-foreground: var(--primary-foreground);
-	--color-primary: var(--primary);
-	--color-popover-foreground: var(--popover-foreground);
-	--color-popover: var(--popover);
-	--color-card-foreground: var(--card-foreground);
-	--color-card: var(--card);
-	--color-foreground: var(--foreground);
 	--color-background: var(--background);
-	--radius-sm: calc(var(--radius) * 0.6);
-	--radius-md: calc(var(--radius) * 0.8);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
+
+	--font-sans: var(--font-sans);
+	--font-mono: var(--font-mono);
+	--font-serif: var(--font-serif);
+
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) * 1.4);
+	--radius-xl: calc(var(--radius) + 4px);
 
-	/* KDS tokens */
-	--color-ink: var(--kds-ink);
-	--color-ink-2: var(--kds-ink-2);
-	--color-bar: var(--kds-bar);
-	--color-action: var(--kds-action);
-	--color-ground: var(--kds-ground);
-	--color-loaded: var(--kds-loaded);
-	--color-divider: var(--kds-divider);
-	--color-disabled: var(--kds-disabled);
-	--color-status-ordered: var(--kds-status-ordered);
-	--color-status-preparing: var(--kds-status-preparing);
-	--color-status-urgent: var(--kds-status-urgent);
-	--color-status-delivered: var(--kds-status-delivered);
-	--color-timer-ok: var(--kds-timer-ok);
-	--color-timer-warn: var(--kds-timer-warn);
-	--color-timer-late: var(--kds-timer-late);
-
-	--animate-kds-in: kds-in 0.28s ease-out both;
-	--animate-kds-pop: kds-pop 0.3s ease-out;
-	--animate-kds-pulse: kds-pulse 1.6s ease-in-out infinite;
-	--animate-kds-panel: kds-panel 0.32s ease-out both;
+	--shadow-2xs: var(--shadow-2xs);
+	--shadow-xs: var(--shadow-xs);
+	--shadow-sm: var(--shadow-sm);
+	--shadow: var(--shadow);
+	--shadow-md: var(--shadow-md);
+	--shadow-lg: var(--shadow-lg);
+	--shadow-xl: var(--shadow-xl);
+	--shadow-2xl: var(--shadow-2xl);
 }
 
 :root {
-	--kds-ink: #101820;
-	--kds-ink-2: #3d4a57;
-	--kds-bar: #14212e;
-	--kds-action: #0b4f9e;
-	--kds-ground: #eef1f4;
-	--kds-loaded: #dce9f8;
-	--kds-divider: #c2cad2;
-	--kds-disabled: #5a6875;
-	--kds-status-ordered: #0b4f9e;
-	--kds-status-preparing: #ff9a1f;
-	--kds-status-urgent: #a3140f;
-	--kds-status-delivered: #cdefd9;
-	--kds-timer-ok: #075f38;
-	--kds-timer-warn: #ffe100;
-	--kds-timer-late: #a3140f;
-
-	--background: var(--kds-ground);
-	--foreground: var(--kds-ink);
-	--card: #ffffff;
-	--card-foreground: var(--kds-ink);
-	--popover: #ffffff;
-	--popover-foreground: var(--kds-ink);
-	--primary: var(--kds-action);
-	--primary-foreground: #ffffff;
-	--secondary: var(--kds-bar);
-	--secondary-foreground: #ffffff;
-	--muted: var(--kds-ground);
-	--muted-foreground: var(--kds-ink-2);
-	--accent: var(--kds-loaded);
-	--accent-foreground: var(--kds-ink);
-	--destructive: var(--kds-status-urgent);
-	--border: var(--kds-ink);
-	--input: var(--kds-ink);
-	--ring: var(--kds-ink);
-	--radius: 12px;
+	--background: #fbf4e6;
+	--foreground: #2b1b10;
+	--card: #fffdf8;
+	--card-foreground: #2b1b10;
+	--popover: #fffdf8;
+	--popover-foreground: #2b1b10;
+	--primary: #f2a51a;
+	--primary-foreground: #2b1b10;
+	--secondary: #f6e7c8;
+	--secondary-foreground: #2b1b10;
+	--muted: #f3e8d3;
+	--muted-foreground: #6e5640;
+	--accent: #fce8b8;
+	--accent-foreground: #2b1b10;
+	--destructive: #b42318;
+	--destructive-foreground: #ffffff;
+	--border: #e6d3b3;
+	--input: #9c7f57;
+	--ring: #c2770c;
+	--chart-1: #334155;
+	--chart-2: #15803d;
+	--chart-3: #dcfce7;
+	--chart-4: #facc15;
+	--chart-5: #14532d;
+	--sidebar: #f3e3c3;
+	--sidebar-foreground: #2b1b10;
+	--sidebar-primary: #f6c24e;
+	--sidebar-primary-foreground: #2b1b10;
+	--sidebar-accent: #c2c7cc;
+	--sidebar-accent-foreground: #2b1b10;
+	--sidebar-border: #dcc59e;
+	--sidebar-ring: #c2770c;
+	--font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+	--font-serif: "Lilita One", "Geist Variable", sans-serif;
+	--font-mono: "Geist Mono Variable", ui-monospace, monospace;
+	--radius: 0.625rem;
+	--shadow-x: 0px;
+	--shadow-y: 1px;
+	--shadow-blur: 3px;
+	--shadow-spread: 0px;
+	--shadow-opacity: 0.1;
+	--shadow-color: rgb(0 0 0 / 0.1);
+	--shadow-2xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+	--shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+	--shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+	--shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+	--shadow-md:
+		0 4px 6px -1px rgb(43 27 16 / 0.14), 0 2px 4px -2px rgb(43 27 16 / 0.14);
+	--shadow-lg:
+		0 20px 25px -5px rgb(43 27 16 / 0.3), 0 8px 10px -6px rgb(43 27 16 / 0.3);
+	--shadow-xl:
+		0 20px 25px -5px rgb(43 27 16 / 0.3), 0 8px 10px -6px rgb(43 27 16 / 0.3);
+	--shadow-2xl: 0 25px 50px -12px rgb(43 27 16 / 0.35);
+	--tracking-normal: 0em;
+	--spacing: 0.25rem;
 }
 
 @layer base {
 	* {
-		@apply border-border;
+		@apply border-border outline-ring/50;
 	}
 	html {
 		@apply font-sans;
@@ -104,18 +138,196 @@
 	body {
 		@apply bg-background text-foreground antialiased;
 	}
-	/* Focus ring from the design: 4px ink outline with a white halo. */
-	:where(button, a, input, [draggable="true"]):focus-visible {
-		outline: 4px solid var(--kds-ink);
-		outline-offset: 3px;
-		box-shadow: 0 0 0 3px #ffffff;
+	/*
+	 * One scrollbar style for the whole app: thin, no arrow buttons, kraft-brown thumb on a
+	 * transparent track. Firefox uses the standard properties; Chromium/Safari use the
+	 * ::-webkit-scrollbar pseudo-elements, which Chromium ignores while the standard ones are set,
+	 * so they are reset to auto inside the @supports block.
+	 */
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: color-mix(in srgb, var(--input) 65%, transparent)
+			transparent;
+	}
+	@supports selector(::-webkit-scrollbar) {
+		* {
+			scrollbar-width: auto;
+			scrollbar-color: auto;
+		}
+		::-webkit-scrollbar {
+			width: 8px;
+			height: 8px;
+		}
+		::-webkit-scrollbar-button {
+			display: none;
+		}
+		::-webkit-scrollbar-track,
+		::-webkit-scrollbar-corner {
+			background: transparent;
+		}
+		::-webkit-scrollbar-thumb {
+			border: 2px solid transparent;
+			border-radius: 9999px;
+			background: color-mix(in srgb, var(--input) 65%, transparent) padding-box;
+		}
+		::-webkit-scrollbar-thumb:hover {
+			background: var(--input) padding-box;
+		}
+	}
+	/* Design focus: ring-colored border + 3px ring at 50%. */
+	:where(button, a, input, textarea):focus-visible {
+		outline: none;
+		border-color: var(--ring);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 50%, transparent);
+	}
+}
+
+/* Surfaces from "01 · Fundamentos". Big areas only, never behind small text. */
+@layer components {
+	.tx-papel {
+		background-color: var(--background);
+		background-image:
+			url("./assets/textures/paper-grain.svg"),
+			radial-gradient(
+				closest-side,
+				rgb(226 154 43 / 0.16),
+				rgb(226 154 43 / 0.05) 65%,
+				rgb(226 154 43 / 0)
+			),
+			radial-gradient(closest-side, rgb(226 154 43 / 0.12), rgb(226 154 43 / 0)),
+			radial-gradient(closest-side, rgb(180 105 28 / 0.08), rgb(180 105 28 / 0));
+		background-size:
+			240px 240px,
+			460px 320px,
+			300px 260px,
+			220px 190px;
+		background-position:
+			0 0,
+			40% 6%,
+			96% 92%,
+			62% 58%;
+		background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+	}
+	.tx-kraft {
+		background-color: var(--sidebar);
+		background-image:
+			url("./assets/textures/kraft-fiber.svg"),
+			url("./assets/textures/paper-grain.svg");
+		background-size:
+			320px 320px,
+			240px 240px;
+	}
+	.tx-ticket {
+		background-color: var(--card);
+		background-image: url("./assets/textures/paper-grain.svg");
+		background-size: 240px 240px;
+	}
+	.tx-acero {
+		background-color: var(--sidebar-accent);
+		background-image:
+			repeating-linear-gradient(
+				0deg,
+				rgb(255 255 255 / 0.12) 0 1px,
+				rgb(0 0 0 / 0.035) 1px 2px,
+				rgb(0 0 0 / 0) 2px 4px
+			),
+			linear-gradient(
+				100deg,
+				rgb(255 255 255 / 0.38),
+				rgb(255 255 255 / 0) 32%,
+				rgb(255 255 255 / 0.24) 56%,
+				rgb(0 0 0 / 0.07) 88%
+			);
+	}
+	.tx-freidora {
+		background-color: var(--foreground);
+		background-image:
+			url("./assets/textures/paper-grain.svg"),
+			linear-gradient(180deg, #3a2516, #24160c);
+	}
+	.tx-cuadros {
+		background-color: #fff8ee;
+		background-image:
+			linear-gradient(90deg, rgb(180 35 24 / 0.6) 50%, rgb(180 35 24 / 0) 50%),
+			linear-gradient(rgb(180 35 24 / 0.6) 50%, rgb(180 35 24 / 0) 50%);
+		background-size: 16px 16px;
+	}
+	.tx-aceite {
+		background-color: var(--primary);
+		background-image: radial-gradient(
+			120% 95% at 50% 100%,
+			#ffe7a8 0%,
+			#f9c750 32%,
+			#efa224 64%,
+			#c9741a 100%
+		);
+	}
+	/* Steel rail the tickets hang from. */
+	.steel-rail {
+		background: linear-gradient(180deg, #f6f7f9 0%, #a8afb6 55%, #858c93 100%);
+		box-shadow:
+			inset 0 1px 0 rgb(255 255 255 / 0.9),
+			0 2px 3px rgb(0 0 0 / 0.25);
+	}
+	/* Hover lift for product cards; the illustration tilts. */
+	.lift {
+		transition:
+			transform 0.2s ease,
+			box-shadow 0.2s ease,
+			border-color 0.2s ease,
+			background-color 0.2s ease;
+	}
+	.lift:hover {
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-md);
+	}
+	.lift img {
+		transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+	.lift:hover img {
+		transform: rotate(-4deg) scale(1.06);
 	}
 }
 
 @keyframes kds-in {
 	from {
 		opacity: 0;
-		transform: translateY(14px) scale(0.97);
+		transform: translateY(12px) scale(0.98);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@keyframes kds-pulse {
+	0%,
+	100% {
+		transform: scale(1) rotate(0);
+	}
+	50% {
+		transform: scale(1.22) rotate(-6deg);
+	}
+}
+
+@keyframes kds-burbuja {
+	0% {
+		transform: translateY(0) scale(0.5);
+		opacity: 0;
+	}
+	15% {
+		opacity: 1;
+	}
+	100% {
+		transform: translateY(-170px) scale(1.1);
+		opacity: 0;
+	}
+}
+
+@keyframes kds-new {
+	from {
+		opacity: 0;
+		transform: translateX(28px);
 	}
 	to {
 		opacity: 1;
@@ -127,28 +339,18 @@
 	0% {
 		transform: scale(1);
 	}
-	45% {
-		transform: scale(1.3);
+	40% {
+		transform: scale(1.35);
 	}
 	100% {
 		transform: scale(1);
-	}
-}
-
-@keyframes kds-pulse {
-	0%,
-	100% {
-		transform: scale(1);
-	}
-	50% {
-		transform: scale(1.25);
 	}
 }
 
 @keyframes kds-panel {
 	from {
 		opacity: 0;
-		transform: translateX(40px);
+		transform: scale(0.985);
 	}
 	to {
 		opacity: 1;
@@ -156,10 +358,56 @@
 	}
 }
 
+/* Screen transition (TanStack Router viewTransition types "to-kitchen" / "to-reception"). */
+@keyframes kds-screen-out {
+	to {
+		opacity: 0;
+		transform: scale(0.985);
+	}
+}
+
+@keyframes kds-screen-in-from-right {
+	from {
+		opacity: 0;
+		transform: translateX(48px) scale(0.985);
+	}
+}
+
+@keyframes kds-screen-in-from-left {
+	from {
+		opacity: 0;
+		transform: translateX(-48px) scale(0.985);
+	}
+}
+
+::view-transition-old(root) {
+	animation: kds-screen-out 0.2s ease-in both;
+}
+
+::view-transition-new(root) {
+	animation: kds-panel 0.32s ease-out both;
+}
+
+html:active-view-transition-type(to-kitchen)::view-transition-new(root) {
+	animation: kds-screen-in-from-right 0.32s ease-out both;
+}
+
+html:active-view-transition-type(to-reception)::view-transition-new(root) {
+	animation: kds-screen-in-from-left 0.32s ease-out both;
+}
+
+/* The header stays put while the screen below changes. */
+::view-transition-group(app-header) {
+	animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	*,
 	*::before,
-	*::after {
+	*::after,
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
 		/* biome-ignore lint/complexity/noImportantStyles: reduced motion must win over every animation. */
 		animation: none !important;
 		/* biome-ignore lint/complexity/noImportantStyles: reduced motion must win over every transition. */
