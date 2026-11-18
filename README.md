@@ -49,7 +49,7 @@ No hace falta instalar SQLite: la base de datos local es un archivo que maneja l
    Este comando levanta en paralelo la API y el cliente (`bun --filter '*' dev`):
 
    - **API:** `http://localhost:3000`, con WebSocket en `ws://localhost:3000/ws`. Se reinicia sola al guardar cambios (`bun --watch`).
-   - **Cliente:** `http://localhost:5173` (puerto por defecto de Vite), con recarga en caliente.
+   - **Cliente:** `http://localhost:5173` (puerto por defecto de Vite), con recarga en caliente. Vite redirige `/api` y `/ws` a la API, así que la interfaz se abre directamente en este puerto.
 
    La primera vez que arranca, la API crea la base de datos, aplica las migraciones y carga el catálogo inicial de productos. No hay que correr nada más.
 

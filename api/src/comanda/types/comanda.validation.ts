@@ -25,19 +25,19 @@ export const orderRequestSchema = jsonBodySchema.pipe(
 	z.object(
 		{
 			customerName: z
-				.string({ error: "customerName must be a string" })
+				.string({ error: "El nombre debe ser una cadena de texto" })
 				.trim()
-				.min(1, { error: "customerName must not be empty" }),
+				.min(1, { error: "El nombre no puede estar vacío" }),
 			notes: z
-				.string({ error: "notes must be a string" })
+				.string({ error: "El campo notes debe ser una cadena de texto" })
 				.trim()
 				.nullish()
 				.transform((notes) => notes || null),
 			items: z
-				.array(orderItemSchema, { error: "items must be an array" })
-				.min(1, { error: "An order needs at least one item" }),
+				.array(orderItemSchema, { error: "Los items deben ser un array" })
+				.min(1, { error: "Una orden necesita al menos un item" }),
 		},
-		{ error: "Body must be a JSON object" },
+		{ error: "El cuerpo debe ser un objeto JSON" },
 	),
 );
 
