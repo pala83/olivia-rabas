@@ -7,43 +7,45 @@ const WARN_AFTER_S = 5 * 60;
 export type TimerLevel = "ok" | "warn" | "late" | "stopped";
 
 /**
- * Seconds the order has been waiting. Delivered orders freeze at the moment this client
- * saw the delivery; null when that moment is unknown (delivered before the page loaded).
+ * Seconds on the order's timer. It runs from `timerStartedAt`; once delivered it stops at the
+ * delivery time (`updatedAt`). Both come from the server, so every screen shows the same value.
  */
-export const elapsedSeconds = (
+export const elapsedSeconds = (order: Order, now: number): number => {
+	const start = Date.parse(order.timerStartedAt);
+	const end = order.status === "FINISHED" ? Date.parse(order.updatedAt) : now;
+	return Math.max(0, Math.floor((end - start) / 1000));
+};
+
+/**
+ * Same rule as the API (comanda.service.ts), for optimistic moves: reopening a delivered order
+ * moves the timer start forward by the time it spent delivered, so it resumes from its total.
+ */
+export const timerStartAfter = (
 	order: Order,
-	now: number,
-	deliveredAt: number | undefined,
-): number | null => {
-	const start = Date.parse(order.createdAt);
-	if (order.status === "FINISHED") {
-		return deliveredAt === undefined
-			? null
-			: Math.max(0, Math.floor((deliveredAt - start) / 1000));
-	}
-	return Math.max(0, Math.floor((now - start) / 1000));
+	next: Order["status"],
+	changedAt: number,
+): string => {
+	if (order.status !== "FINISHED" || next === "FINISHED")
+		return order.timerStartedAt;
+	const timeDelivered = changedAt - Date.parse(order.updatedAt);
+	return new Date(
+		Date.parse(order.timerStartedAt) + timeDelivered,
+	).toISOString();
 };
 
 /** Design cut-offs: green up to 5 min, yellow 5–10, red with fire after 10. */
-export const timerLevel = (
-	seconds: number | null,
-	finished: boolean,
-): TimerLevel => {
+export const timerLevel = (seconds: number, finished: boolean): TimerLevel => {
 	if (finished) return "stopped";
-	const value = seconds ?? 0;
-	if (value < WARN_AFTER_S) return "ok";
-	if (value < URGENT_AFTER_S) return "warn";
+	if (seconds < WARN_AFTER_S) return "ok";
+	if (seconds < URGENT_AFTER_S) return "warn";
 	return "late";
 };
 
 /** Progress bar fills over 10 minutes; full once delivered. */
-export const waitPercent = (
-	seconds: number | null,
-	finished: boolean,
-): number => (finished ? 100 : Math.min(100, Math.round((seconds ?? 0) / 6)));
+export const waitPercent = (seconds: number, finished: boolean): number =>
+	finished ? 100 : Math.min(100, Math.round(seconds / 6));
 
-export const formatClock = (seconds: number | null): string => {
-	if (seconds === null) return "--:--";
+export const formatClock = (seconds: number): string => {
 	const minutes = Math.floor(seconds / 60);
 	const rest = seconds % 60;
 	return `${String(minutes).padStart(2, "0")}:${String(rest).padStart(2, "0")}`;

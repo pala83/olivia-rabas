@@ -15,18 +15,11 @@ type BoardLaneProps = {
 	status: OrderStatus;
 	orders: Order[];
 	now: number;
-	deliveredAt: Record<number, number>;
 	onAdvance: (order: Order) => void;
 };
 
 /** One status lane: header, steel rail, hanging tickets; accepts tickets from other lanes. */
-export function BoardLane({
-	status,
-	orders,
-	now,
-	deliveredAt,
-	onAdvance,
-}: BoardLaneProps) {
+export function BoardLane({ status, orders, now, onAdvance }: BoardLaneProps) {
 	const ref = useRef<HTMLElement>(null);
 	const [isOver, setIsOver] = useState(false);
 
@@ -67,7 +60,6 @@ export function BoardLane({
 					order={order}
 					laneStatus={status}
 					now={now}
-					deliveredAt={deliveredAt[order.id]}
 					onAdvance={onAdvance}
 				/>
 			))}

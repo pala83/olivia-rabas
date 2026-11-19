@@ -102,3 +102,42 @@ La API no tiene SQL escrito a mano. Las tablas se definen en TypeScript y Drizzl
 - **No editar `snapshot.json` a mano:** lo mantiene `drizzle-kit`.
 - Para explorar los datos se puede abrir Drizzle Studio con `bun run db:studio` (desde `api/`).
 - Para volver a empezar con la base de datos local vacía, borrar `api/data/kds.db` con la API apagada. Al levantarla de nuevo se recrea con todas las migraciones y el catálogo inicial. **Esto borra todas las comandas cargadas.**
+
+## Deploy en Vercel (un solo proyecto)
+
+El monorepo se deploya como **un único proyecto de Vercel** usando [Services](https://vercel.com/docs/services). La configuración está en `vercel.json`, en la raíz:
+
+| Servicio | Carpeta | Qué hace en Vercel |
+| -------- | ------- | ------------------ |
+| `web` | `client/` | Build de Vite, servido como sitio estático. |
+| `api` | `api/` | `src/main.ts` corre como Vercel Function con el [runtime de Bun](https://vercel.com/docs/functions/runtimes/bun) (`bunVersion`). Su comando de build es `bun run db:migrate`. |
+
+Las `rewrites` mandan `/api/*` y `/ws` al servicio `api`, y todo lo demás al `web`. Como cliente y API comparten dominio, el cliente usa las mismas rutas relativas que en desarrollo y no necesita configuración extra.
+
+### Diferencias con el entorno local
+
+- **Base de datos: Turso.** Las funciones de Vercel tienen el disco de solo lectura (salvo `/tmp`, que se borra), así que en producción no se puede usar el archivo SQLite local.
+- **Migraciones en el deploy.** El build del servicio `api` corre `bun run db:migrate` contra Turso. En Vercel la función no migra al arrancar: `main.ts` pasa `migrate: false` cuando existe la variable `VERCEL`. El seed sí corre al arrancar, y solo carga datos si `PRODUCTO` está vacía.
+- **Tiempo real.** En Vercel, cada instancia de la función reparte los eventos de `/ws` solo entre sus propias conexiones, y la conexión se corta al llegar a la duración máxima de la función. Por eso el cliente, además del WebSocket, recarga las comandas cada 5 segundos y cada vez que la pestaña vuelve a estar visible. Una comanda nueva puede tardar hasta 5 segundos en aparecer en otra pantalla.
+
+### Pasos
+
+1. **Crear la base en [Turso](https://turso.tech)** con la CLI de Turso:
+
+   ```bash
+   turso db create olivia-rabas
+   turso db show olivia-rabas --url       # → TURSO_DATABASE_URL
+   turso db tokens create olivia-rabas    # → TURSO_AUTH_TOKEN
+   ```
+
+2. **Importar el repositorio en Vercel** como un solo proyecto. Elegir el framework preset **Services**, dejar el *Root Directory* en la raíz y verificar que **Fluid compute** esté activado: lo necesitan los WebSockets.
+3. **Cargar las variables de entorno** del proyecto:
+   - `DB_TARGET=turso`
+   - `TURSO_DATABASE_URL`
+   - `TURSO_AUTH_TOKEN`
+
+   Cargalas **solo para Production**, o apuntá Preview a otra base de Turso. Si no, cada deploy de preview corre las migraciones sobre la base de producción.
+4. **Deployar.** Hacé push a la rama de producción, o corré `vercel --prod` con la [CLI de Vercel](https://vercel.com/docs/cli).
+5. **Comprobar** que respondan `/api/products`, `/` y `/cocina`; en `/cocina`, entrando directo y también recargando la página.
+
+El runtime de Bun en Vercel está en **beta**. Para probar el build sin deployar: `vercel pull` y después `vercel build`, con el proyecto ya vinculado.

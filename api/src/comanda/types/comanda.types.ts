@@ -11,6 +11,13 @@ export type Order = {
 	customerName: string;
 	notes: string | null;
 	createdAt: string;
+	/** Last change (creation or status change); for a FINISHED order, when it was delivered. */
+	updatedAt: string;
+	/**
+	 * Effective start of the kitchen timer: the timer shows `now - timerStartedAt`, or
+	 * `updatedAt - timerStartedAt` (frozen) once FINISHED. Moves forward when an order is reopened.
+	 */
+	timerStartedAt: string;
 	status: OrderStatus;
 	items: OrderItem[];
 };

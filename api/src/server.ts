@@ -2,7 +2,6 @@ import { comandaController } from "./comanda/comanda.controller.ts";
 import { createComandaService } from "./comanda/comanda.service.ts";
 import type { DatabaseConfig } from "./config/database.config.ts";
 import { createDatabase } from "./db/client.ts";
-import { runMigrations } from "./db/migrate.ts";
 import { seedDatabase } from "./db/seed.ts";
 import { itemComandaController } from "./item-comanda/item-comanda.controller.ts";
 import { createItemComandaService } from "./item-comanda/item-comanda.service.ts";
@@ -17,9 +16,11 @@ export type ServerOptions = {
 };
 
 /** Composition root: migrates and seeds the database, then starts the HTTP + WebSocket server. */
-export const createServer = async ({ database, port }: ServerOptions) => {
+export const createServer = async ({
+	database,
+	port,
+}: ServerOptions) => {
 	const db = createDatabase(database);
-	await runMigrations(db);
 	await seedDatabase(db);
 
 	const events = new OrderEventPublisher();

@@ -14,19 +14,12 @@ type OrderTicketProps = {
 	order: Order;
 	/** Current time in ms (one ticker per screen). */
 	now: number;
-	/** When this client saw the order delivered, if it did. */
-	deliveredAt: number | undefined;
 	onAdvance: (order: Order) => void;
 };
 
 /** "Comanda" card on ticket paper: status band, clock and progress, food and drinks, note, action. */
-export function OrderTicket({
-	order,
-	now,
-	deliveredAt,
-	onAdvance,
-}: OrderTicketProps) {
-	const seconds = elapsedSeconds(order, now, deliveredAt);
+export function OrderTicket({ order, now, onAdvance }: OrderTicketProps) {
+	const seconds = elapsedSeconds(order, now);
 	const status = displayStatus(order, seconds);
 	const view = STATUS_VIEW[status];
 	const finished = order.status === "FINISHED";

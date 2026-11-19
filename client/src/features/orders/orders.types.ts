@@ -23,6 +23,13 @@ export type Order = {
 	notes: string | null;
 	/** ISO timestamp set by the server; the timer counts from here. */
 	createdAt: string;
+	/** Last change set by the server; for a FINISHED order, its delivery time. */
+	updatedAt: string;
+	/**
+	 * Effective start of the timer (server): it shows `now - timerStartedAt`, frozen at
+	 * `updatedAt - timerStartedAt` once FINISHED. Moves forward when a delivered order is reopened.
+	 */
+	timerStartedAt: string;
 	status: OrderStatus;
 	items: OrderItem[];
 };

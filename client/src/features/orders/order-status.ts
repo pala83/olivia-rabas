@@ -65,10 +65,7 @@ export const STATUS_VIEW: Record<OrderStatus, StatusView> = {
  * Status shown on screen. Like the design, an undelivered order that has waited
  * 10 minutes is shown as Urgente; the API status is not changed.
  */
-export const displayStatus = (
-	order: Order,
-	seconds: number | null,
-): OrderStatus =>
-	order.status !== "FINISHED" && (seconds ?? 0) >= URGENT_AFTER_S
+export const displayStatus = (order: Order, seconds: number): OrderStatus =>
+	order.status !== "FINISHED" && seconds >= URGENT_AFTER_S
 		? "DELAYED"
 		: order.status;

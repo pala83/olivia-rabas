@@ -14,7 +14,7 @@ import { BoardLane } from "./BoardLane";
 /** "04 · Tablero de cocina": four lanes side by side, scrolling horizontally when they don't fit. */
 export function KitchenBoard() {
 	const now = useNow();
-	const { orders, deliveredAt, moveOrder } = useOrdersContext();
+	const { orders, moveOrder } = useOrdersContext();
 	const scrollerRef = useRef<HTMLDivElement>(null);
 	const move = useEffectEvent(moveOrder);
 
@@ -41,10 +41,7 @@ export function KitchenBoard() {
 
 	const shown = orders.map((order) => ({
 		order,
-		status: displayStatus(
-			order,
-			elapsedSeconds(order, now, deliveredAt[order.id]),
-		),
+		status: displayStatus(order, elapsedSeconds(order, now)),
 	}));
 	const advance = (order: Order) => {
 		const current =
@@ -68,7 +65,6 @@ export function KitchenBoard() {
 							.filter((entry) => entry.status === status)
 							.map((entry) => entry.order)}
 						now={now}
-						deliveredAt={deliveredAt}
 						onAdvance={advance}
 					/>
 				))}

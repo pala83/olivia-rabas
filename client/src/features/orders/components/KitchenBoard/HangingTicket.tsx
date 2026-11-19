@@ -12,7 +12,6 @@ type HangingTicketProps = {
 	/** Lane it is shown in (an order past 10 minutes shows as Urgente). */
 	laneStatus: OrderStatus;
 	now: number;
-	deliveredAt: number | undefined;
 	onAdvance: (order: Order) => void;
 };
 
@@ -24,7 +23,6 @@ export function HangingTicket({
 	order,
 	laneStatus,
 	now,
-	deliveredAt,
 	onAdvance,
 }: HangingTicketProps) {
 	const ref = useRef<HTMLDivElement>(null);
@@ -72,12 +70,7 @@ export function HangingTicket({
 				aria-hidden="true"
 				className="absolute -top-[9px] left-1/2 z-1 -ml-[18px] h-3.5 w-9 rounded bg-[linear-gradient(180deg,#EEF0F2,#9AA1A8)] shadow-[0_1px_2px_rgb(0_0_0/0.35)]"
 			/>
-			<OrderTicket
-				order={order}
-				now={now}
-				deliveredAt={deliveredAt}
-				onAdvance={onAdvance}
-			/>
+			<OrderTicket order={order} now={now} onAdvance={onAdvance} />
 		</div>
 	);
 }

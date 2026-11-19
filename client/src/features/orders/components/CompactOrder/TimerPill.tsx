@@ -5,7 +5,7 @@ import { TIMER_VIEW } from "../../timer-view";
 
 type TimerPillProps = {
 	level: TimerLevel;
-	seconds: number | null;
+	seconds: number;
 };
 
 /** Mono clock pill; the fire pulses only when late. */

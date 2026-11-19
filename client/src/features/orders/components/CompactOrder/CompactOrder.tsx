@@ -8,19 +8,13 @@ import { TimerPill } from "./TimerPill";
 type CompactOrderProps = {
 	order: Order;
 	now: number;
-	deliveredAt: number | undefined;
 	/** Slide in from the right (the order this screen just sent). */
 	isNew?: boolean;
 };
 
 /** Summary row for "En cocina": status, table, number and clock. */
-export function CompactOrder({
-	order,
-	now,
-	deliveredAt,
-	isNew = false,
-}: CompactOrderProps) {
-	const seconds = elapsedSeconds(order, now, deliveredAt);
+export function CompactOrder({ order, now, isNew = false }: CompactOrderProps) {
+	const seconds = elapsedSeconds(order, now);
 	const status = displayStatus(order, seconds);
 	const view = STATUS_VIEW[status];
 

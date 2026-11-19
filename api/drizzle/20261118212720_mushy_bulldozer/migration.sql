@@ -3,6 +3,7 @@ CREATE TABLE `COMANDA` (
 	`customer_name` text NOT NULL,
 	`notes` text,
 	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL,
 	`status` text NOT NULL
 );
 --> statement-breakpoint

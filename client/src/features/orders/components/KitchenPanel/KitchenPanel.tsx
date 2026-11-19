@@ -11,7 +11,7 @@ const VISIBLE = 6;
 /** Steel column at reception: a summary of what the kitchen has (newest first). */
 export function KitchenPanel() {
 	const now = useNow();
-	const { orders, deliveredAt } = useOrdersContext();
+	const { orders } = useOrdersContext();
 	const { lastSentId } = useOrderDraftContext();
 	const pending = orders
 		.filter((order) => order.status !== "FINISHED")
@@ -29,7 +29,6 @@ export function KitchenPanel() {
 						key={order.id}
 						order={order}
 						now={now}
-						deliveredAt={deliveredAt[order.id]}
 						isNew={order.id === lastSentId}
 					/>
 				))}

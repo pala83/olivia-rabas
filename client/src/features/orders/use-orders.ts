@@ -1,39 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { timerStartAfter } from "./order-time";
 import { changeOrderStatus, listOrders } from "./orders.api";
 import type { Order, OrderEvent, OrderStatus } from "./orders.types";
 
 export type Connection = "connecting" | "online" | "offline";
 
-type OrdersState = {
-	orders: Order[];
-	/**
-	 * When this client saw each order reach FINISHED (ms). The API keeps no delivery time,
-	 * so after a reload delivered orders show no total.
-	 */
-	deliveredAt: Record<number, number>;
-};
-
 const MAX_RETRY_DELAY_MS = 10_000;
+/**
+ * Safety net for the WebSocket: on Vercel each function instance only broadcasts to its own
+ * sockets, so an event can miss a screen connected to another instance. Reloading the list
+ * every few seconds (and when the tab becomes visible) bounds that delay.
+ */
+const POLL_INTERVAL_MS = 5_000;
 
-const upsert = (state: OrdersState, order: Order): OrdersState => {
-	const previous = state.orders.find((current) => current.id === order.id);
-	const orders = previous
-		? state.orders.map((current) => (current.id === order.id ? order : current))
-		: [...state.orders, order].sort((a, b) => a.id - b.id);
-
-	const deliveredAt = { ...state.deliveredAt };
-	if (order.status !== "FINISHED") {
-		delete deliveredAt[order.id];
-	} else if (previous && previous.status !== "FINISHED") {
-		deliveredAt[order.id] = Date.now();
-	}
-	return { orders, deliveredAt };
-};
-
-const replaceAll = (state: OrdersState, orders: Order[]): OrdersState => ({
-	orders,
-	deliveredAt: state.deliveredAt,
-});
+const upsert = (orders: Order[], order: Order): Order[] =>
+	orders.some((current) => current.id === order.id)
+		? orders.map((current) => (current.id === order.id ? order : current))
+		: [...orders, order].sort((a, b) => a.id - b.id);
 
 const socketUrl = () => {
 	const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -45,12 +28,11 @@ const socketUrl = () => {
  * (reconnecting with backoff and reloading on every reconnect) and optimistic status changes.
  */
 export const useOrders = () => {
-	const [state, setState] = useState<OrdersState>({
-		orders: [],
-		deliveredAt: {},
-	});
+	const [orders, setOrders] = useState<Order[]>([]);
 	const [connection, setConnection] = useState<Connection>("connecting");
 	const [error, setError] = useState<string | null>(null);
+	/** Status changes still waiting for the API; a reload meanwhile would undo them on screen. */
+	const pendingMoves = useRef(0);
 
 	useEffect(() => {
 		let disposed = false;
@@ -58,13 +40,16 @@ export const useOrders = () => {
 		let retryTimer: ReturnType<typeof setTimeout> | undefined;
 		let attempts = 0;
 
-		const reload = () => {
+		/** `silent`: periodic reloads don't raise errors (the connection status already does). */
+		const reload = (silent = false) => {
 			listOrders()
-				.then((orders) => {
-					if (!disposed) setState((current) => replaceAll(current, orders));
+				.then((loaded) => {
+					if (!disposed && pendingMoves.current === 0) {
+						setOrders(loaded);
+					}
 				})
 				.catch((reason: Error) => {
-					if (!disposed) setError(reason.message);
+					if (!disposed && !silent) setError(reason.message);
 				});
 		};
 
@@ -78,7 +63,7 @@ export const useOrders = () => {
 			};
 			socket.onmessage = (message: MessageEvent<string>) => {
 				const event = JSON.parse(message.data) as OrderEvent;
-				setState((current) => upsert(current, event.order));
+				setOrders((current) => upsert(current, event.order));
 			};
 			socket.onclose = () => {
 				if (disposed) return;
@@ -89,36 +74,56 @@ export const useOrders = () => {
 			};
 		};
 
+		const reloadWhenVisible = () => {
+			if (document.visibilityState === "visible") reload(true);
+		};
+
 		reload();
 		connect();
+		const pollTimer = setInterval(reloadWhenVisible, POLL_INTERVAL_MS);
+		document.addEventListener("visibilitychange", reloadWhenVisible);
 
 		return () => {
 			disposed = true;
+			clearInterval(pollTimer);
+			document.removeEventListener("visibilitychange", reloadWhenVisible);
 			clearTimeout(retryTimer);
 			socket?.close();
 		};
 	}, []);
 
 	const addOrder = (order: Order) => {
-		setState((current) => upsert(current, order));
+		setOrders((current) => upsert(current, order));
 	};
 
 	const moveOrder = (id: number, status: OrderStatus) => {
-		const previous = state.orders.find((order) => order.id === id);
+		const previous = orders.find((order) => order.id === id);
 		if (!previous || previous.status === status) return;
 
-		setState((current) => upsert(current, { ...previous, status }));
+		// Mirror the server's timestamps so the timer doesn't jump until the response arrives.
+		const changedAt = Date.now();
+		setOrders((current) =>
+			upsert(current, {
+				...previous,
+				status,
+				updatedAt: new Date(changedAt).toISOString(),
+				timerStartedAt: timerStartAfter(previous, status, changedAt),
+			}),
+		);
+		pendingMoves.current += 1;
 		changeOrderStatus(id, status)
-			.then((saved) => setState((current) => upsert(current, saved)))
+			.then((saved) => setOrders((current) => upsert(current, saved)))
 			.catch((reason: Error) => {
-				setState((current) => upsert(current, previous));
+				setOrders((current) => upsert(current, previous));
 				setError(`No se pudo mover la comanda #${id}: ${reason.message}`);
+			})
+			.finally(() => {
+				pendingMoves.current -= 1;
 			});
 	};
 
 	return {
-		orders: state.orders,
-		deliveredAt: state.deliveredAt,
+		orders,
 		connection,
 		error,
 		dismissError: () => setError(null),

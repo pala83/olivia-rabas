@@ -8,7 +8,7 @@ import { WaitProgress } from "./WaitProgress";
 type TicketHeaderProps = {
 	order: Order;
 	status: OrderStatus;
-	seconds: number | null;
+	seconds: number;
 	finished: boolean;
 };
 
@@ -43,10 +43,10 @@ export function TicketHeader({
 						role="img"
 						aria-label="Se puede arrastrar"
 						strokeWidth={2.4}
-						className="size-[18px] text-muted-foreground"
+						className="size-4.5 text-muted-foreground"
 					/>
 				</div>
-				<TimerBadge level={level} unknown={seconds === null} />
+				<TimerBadge level={level} />
 			</div>
 			<WaitProgress
 				level={level}

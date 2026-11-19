@@ -6,14 +6,14 @@ import { TIMER_VIEW } from "../../timer-view";
 
 type WaitProgressProps = {
 	level: TimerLevel;
-	seconds: number | null;
+	seconds: number;
 	percent: number;
 };
 
 /** shadcn Progress: fills over 10 minutes, colored like the clock. */
 export function WaitProgress({ level, seconds, percent }: WaitProgressProps) {
 	const view = TIMER_VIEW[level];
-	const minutes = Math.min(10, Math.floor((seconds ?? 0) / 60));
+	const minutes = Math.min(10, Math.floor(seconds / 60));
 
 	return (
 		<ProgressPrimitive.Root

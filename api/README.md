@@ -15,7 +15,7 @@ Copiar `.env.example` a `.env` (Bun lo carga automáticamente) y elegir el desti
 
 `src/config/database.config.ts` resuelve estas variables tanto para la aplicación como para `drizzle.config.ts`, así `drizzle-kit` siempre apunta a la misma base de datos que el servidor. Si faltan las variables de Turso o `DB_TARGET` tiene un valor desconocido, el proceso se detiene con un error explícito.
 
-Al arrancar, el servidor aplica las migraciones pendientes y, si la tabla `PRODUCTO` está vacía, carga el catálogo inicial de productos (seed).
+Al arrancar, el servidor aplica las migraciones pendientes y, si la tabla `PRODUCTO` está vacía, carga el catálogo inicial de productos (seed). `createServer({ migrate: false })` omite las migraciones. Así arranca en Vercel (`main.ts` lo decide según la variable `VERCEL`), porque ahí las migraciones corren en el build con `bun run db:migrate` (ver el README de la raíz).
 
 ## Comandos
 
@@ -47,6 +47,8 @@ Después de modificar un `*.schema.ts`, correr `db:generate` y commitear la nuev
 - `status` es uno de `ORDERED`, `IN_PREPARATION`, `DELAYED`, `FINISHED`. Toda comanda nueva empieza en `ORDERED`, y el cocinero puede moverla a cualquier estado.
 - `withSalt` es obligatorio en los productos `FOOD` y debe omitirse (o ser `null`) en los productos `DRINK`.
 - `createdAt` lo asigna el servidor y nunca cambia; el cronómetro de la UI arranca desde ese momento.
+- `updatedAt` lo asigna el servidor: al crear la comanda vale lo mismo que `createdAt`, y pasa a ser la hora de cada cambio **real** de estado. Pedir el mismo estado que ya tiene no cambia ninguna hora. En una comanda `FINISHED` es la hora de entrega.
+- `timerStartedAt` es el arranque del reloj de cocina. El reloj muestra `ahora − timerStartedAt` y, cuando la comanda está `FINISHED`, queda detenido en `updatedAt − timerStartedAt`. Al crear la comanda vale `createdAt`. Si una comanda entregada se reabre (pasa de `FINISHED` a otro estado), avanza exactamente el tiempo que estuvo entregada, así el reloj retoma desde el total en que se había detenido.
 - Los errores devuelven `{ "error": string }` con `400` (validación) o `404` (no encontrado). Los mensajes de validación los genera zod (`z.prettifyError`): una línea `✖ mensaje` por cada problema, seguida de `→ at <campo>`.
 
 `kds-api.http`, en la raíz del repositorio, tiene una request de ejemplo para cada endpoint, lista para usar con la extensión REST Client de VS Code.

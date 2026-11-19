@@ -15,7 +15,7 @@ El diseño sale del lienzo «KDS · Sistema de diseño» de Claude Design (versi
 - **Reloj:** cuenta desde `createdAt`. Es verde hasta los 5 minutos, amarillo hasta los 10 y rojo con fuego después; la barra de progreso se llena en 10 minutos. Como dice el diseño ("Pasan a Urgente a los 10 min"), una comanda no entregada con 10 minutos o más **se muestra** en Urgente; en la API sigue con su estado hasta que alguien la mueva.
 - **Tiempo real:** un solo WebSocket para toda la app (`OrdersProvider`). La comanda en armado sobrevive al ir y volver de la cocina (`OrderDraftProvider`).
 - **Fuera del diseño:** el combo no está porque la API no lo soporta. El número de la próxima comanda no se muestra porque lo asigna la API al crearla.
-- **Limitación:** la API no guarda cuándo se entregó una comanda. Su "Tiempo total" solo se conoce si el cambio de estado ocurrió con la página abierta; si no, se muestra "--:--".
+- **Reloj detenido y reabierto:** el reloj corre desde `timerStartedAt`, y al entregar la comanda se detiene en `updatedAt − timerStartedAt`. Si se reabre, sigue desde ese total: el tiempo que estuvo entregada no se cuenta. Las horas las pone el servidor, así que todas las pantallas muestran lo mismo. Al mover una tarjeta, el cliente aplica la misma regla con la hora local (`timerStartAfter`) hasta que llega la respuesta.
 
 ### Estructura
 
