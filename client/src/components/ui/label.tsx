@@ -1,7 +1,7 @@
 import { cn } from "cn";
-import type * as React from "react";
+import type { ComponentProps } from "react";
 
-function Label({ className, ...props }: React.ComponentProps<"label">) {
+function Label({ className, ...props }: ComponentProps<"label">) {
 	return (
 		// biome-ignore lint/a11y/noLabelWithoutControl: generic primitive; callers pass htmlFor.
 		<label

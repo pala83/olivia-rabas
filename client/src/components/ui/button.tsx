@@ -2,26 +2,37 @@ import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "cn";
 
-// Adapted to "KDS · Sistema de diseño": 3px ink border, 12px radius, bold type,
-// 64px touch targets and a dashed look for aria-disabled (still focusable, so it can explain why).
 const buttonVariants = cva(
-	"group/button inline-flex shrink-0 cursor-pointer items-center justify-center gap-2.5 rounded-lg border-3 border-ink font-bold text-center transition-[transform,background-color,border-color,color] duration-200 ease-out outline-none select-none active:scale-96 disabled:pointer-events-none disabled:opacity-50 aria-disabled:border-dashed aria-disabled:border-disabled aria-disabled:bg-card aria-disabled:text-ink-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5.5",
+	"group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 	{
 		variants: {
 			variant: {
 				default:
-					"border-action bg-primary text-primary-foreground hover:bg-[color-mix(in_oklch,var(--primary),black_12%)]",
-				outline: "bg-card text-ink hover:bg-muted",
-				bar: "bg-bar text-white hover:bg-[color-mix(in_oklch,var(--kds-bar),white_10%)]",
-				inverse: "border-white bg-card text-bar hover:bg-muted",
-				loaded:
-					"bg-loaded text-ink hover:bg-[color-mix(in_oklch,var(--kds-loaded),black_6%)]",
+					"border-primary bg-primary text-primary-foreground shadow-xs hover:bg-[#E39A15]",
+				"primary-gradient":
+					"border-[#D18A0E] bg-primary bg-[linear-gradient(180deg,#FBC44A_0%,#F2A51A_55%,#DB8E10_100%)] font-semibold text-primary-foreground shadow-[var(--shadow-xs),inset_0_1px_0_rgb(255_255_255/0.45)] hover:bg-[linear-gradient(180deg,#F6B935_0%,#E89A12_55%,#CC820C_100%)] aria-disabled:opacity-50",
+				outline:
+					"border-input bg-card shadow-xs hover:bg-accent hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+				secondary:
+					"border-secondary bg-secondary text-secondary-foreground shadow-xs hover:bg-[#F0DCB2] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+				ghost:
+					"hover:bg-accent hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+				destructive:
+					"bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+				link: "text-primary underline-offset-4 hover:underline",
 			},
 			size: {
-				default: "min-h-16 px-5 text-[22px] leading-7",
-				md: "min-h-16 px-4 text-xl leading-6",
-				chip: "min-h-14 gap-2 pr-3.5 pl-2.5 text-xl leading-[26px]",
-				tile: "relative min-h-22 px-3 py-2 text-[22px] leading-7 whitespace-normal",
+				default:
+					"h-9 gap-2 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
+				xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
+				sm: "h-8 gap-1.5 rounded-[min(var(--radius-md),12px)] px-3 text-sm in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+				lg: "h-10 gap-2 px-6 has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4",
+				icon: "size-9",
+				"icon-xs":
+					"size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
+				"icon-sm":
+					"size-8 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
+				"icon-lg": "size-10",
 			},
 		},
 		defaultVariants: {

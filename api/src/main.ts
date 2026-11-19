@@ -10,6 +10,8 @@ ensureLocalDatabaseDirectory(database);
 const server = await createServer({
 	database,
 	port: Number(Bun.env.PORT ?? 3000),
+	// On Vercel the build step already migrated the database.
+	migrate: !Bun.env.VERCEL,
 });
 
 console.log(`KDS API listening on ${server.url} (database: ${database.url})`);

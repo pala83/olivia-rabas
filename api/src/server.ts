@@ -14,12 +14,21 @@ export type ServerOptions = {
 	database: DatabaseConfig;
 	/** 0 picks a free port. */
 	port: number;
+	/**
+	 * Apply pending migrations on startup (default). Vercel runs them at deploy time
+	 * (`bun run db:migrate` as the build command), so the function skips them.
+	 */
+	migrate?: boolean;
 };
 
 /** Composition root: migrates and seeds the database, then starts the HTTP + WebSocket server. */
-export const createServer = async ({ database, port }: ServerOptions) => {
+export const createServer = async ({
+	database,
+	port,
+	migrate = true,
+}: ServerOptions) => {
 	const db = createDatabase(database);
-	await runMigrations(db);
+	if (migrate) await runMigrations(db);
 	await seedDatabase(db);
 
 	const events = new OrderEventPublisher();

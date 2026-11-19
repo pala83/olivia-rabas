@@ -9,7 +9,7 @@ import { itemComanda } from "../item-comanda/item-comanda.schema.ts";
 import { producto } from "../producto/producto.schema.ts";
 import type { OrderEventPublisher } from "../realtime/order-events.ts";
 import type { Id } from "../shared/types/shared.types.ts";
-import { comanda } from "./comanda.schema.ts";
+import { comanda, type OrderStatus } from "./comanda.schema.ts";
 import {
 	InvalidOrderError,
 	InvalidOrderStatusError,
@@ -28,6 +28,19 @@ type Dependencies = {
 	db: Database;
 	events: OrderEventPublisher;
 	now?: () => Date;
+};
+
+const timerStartAfter = (
+	current: { status: OrderStatus; updatedAt: string; timerStartedAt: string },
+	next: OrderStatus,
+	changedAt: Date,
+): string => {
+	if (current.status !== "FINISHED" || next === "FINISHED")
+		return current.timerStartedAt;
+	const timeDelivered = changedAt.getTime() - Date.parse(current.updatedAt);
+	return new Date(
+		Date.parse(current.timerStartedAt) + timeDelivered,
+	).toISOString();
 };
 
 const parseOrderId = (rawId: string): Id => {
@@ -98,13 +111,17 @@ export const createComandaService = ({
 			const { customerName, notes } = parsed.data;
 			const items = await toItemRows(parsed.data);
 
+			const createdAt = now().toISOString();
 			const id = await db.transaction(async (tx) => {
 				const [created] = await tx
 					.insert(comanda)
 					.values({
 						customerName,
 						notes,
-						createdAt: now().toISOString(),
+						createdAt,
+						// Last change and timer start both begin at creation.
+						updatedAt: createdAt,
+						timerStartedAt: createdAt,
 						status: "ORDERED",
 					})
 					.returning({ id: comanda.id });
@@ -128,12 +145,31 @@ export const createComandaService = ({
 				throw new InvalidOrderStatusError(z.prettifyError(parsed.error));
 			}
 
-			const updated = await db
-				.update(comanda)
-				.set({ status: parsed.data.status })
-				.where(eq(comanda.id, id))
-				.returning({ id: comanda.id });
-			if (updated.length === 0) throw new OrderNotFoundError(id);
+			const next = parsed.data.status;
+
+			await db.transaction(async (tx) => {
+				const [current] = await tx
+					.select({
+						status: comanda.status,
+						updatedAt: comanda.updatedAt,
+						timerStartedAt: comanda.timerStartedAt,
+					})
+					.from(comanda)
+					.where(eq(comanda.id, id));
+				if (!current) throw new OrderNotFoundError(id);
+				// Same status again: nothing changes, so a delivered total can't grow.
+				if (current.status === next) return;
+
+				const changedAt = now();
+				await tx
+					.update(comanda)
+					.set({
+						status: next,
+						updatedAt: changedAt.toISOString(),
+						timerStartedAt: timerStartAfter(current, next, changedAt),
+					})
+					.where(eq(comanda.id, id));
+			});
 
 			const order = await findOrder(id);
 			events.publish({ type: "order.status_changed", order });

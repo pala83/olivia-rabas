@@ -1,6 +1,7 @@
 import path from "node:path";
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -10,6 +11,13 @@ const API_TARGET = process.env.KDS_API_URL ?? "http://localhost:3000";
 // https://vite.dev/config/
 export default defineConfig({
 	plugins: [
+		// File-based routes from src/routes; must stay before react().
+		tanstackRouter({
+			target: "react",
+			autoCodeSplitting: true,
+			quoteStyle: "double",
+			semicolons: true,
+		}),
 		tailwindcss(),
 		react(),
 		babel({ presets: [reactCompilerPreset()] }),

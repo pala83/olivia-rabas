@@ -1,69 +1,71 @@
 import {
-	Bell,
 	CircleCheck,
 	CookingPot,
 	type LucideIcon,
+	ReceiptText,
 	TriangleAlert,
 } from "lucide-react";
-import type { OrderStatus } from "./orders.types";
+import { URGENT_AFTER_S } from "./order-time";
+import type { Order, OrderStatus } from "./orders.types";
 
 type StatusView = {
 	label: string;
 	icon: LucideIcon;
-	/** Tailwind classes for the colored band (background + readable ink). */
+	/** Badge / lane header / status square: background, text and border. */
+	tone: string;
+	/** Top band of the ticket and left band of the compact order. */
 	band: string;
-	/** Status the card button moves the order to. */
+	/** Status the card button moves the order to, and its label. */
 	next: OrderStatus;
-	/** Label of the card button. */
 	action: string;
+	actionVariant: "default" | "outline";
 };
 
-/** Design states: Pedido, En preparación, Urgente, Entregado (API: ORDERED … FINISHED). */
+/** Design states (Fritería · Fundamentos): Pedido, En preparación, Urgente, Entregado. */
 export const STATUS_VIEW: Record<OrderStatus, StatusView> = {
 	ORDERED: {
 		label: "Pedido",
-		icon: Bell,
-		band: "bg-status-ordered text-white",
+		icon: ReceiptText,
+		tone: "border-chart-1 bg-chart-1 text-white",
+		band: "bg-chart-1",
 		next: "IN_PREPARATION",
 		action: "Empezar a preparar",
+		actionVariant: "default",
 	},
 	IN_PREPARATION: {
 		label: "En preparación",
 		icon: CookingPot,
-		band: "bg-status-preparing text-ink",
+		tone: "border-primary bg-primary text-primary-foreground",
+		band: "bg-primary",
 		next: "FINISHED",
 		action: "Marcar entregada",
+		actionVariant: "default",
 	},
 	DELAYED: {
 		label: "Urgente",
 		icon: TriangleAlert,
-		band: "bg-status-urgent text-white",
+		tone: "border-destructive bg-destructive text-white",
+		band: "bg-[repeating-linear-gradient(135deg,var(--destructive)_0_10px,var(--card)_10px_20px)]",
 		next: "FINISHED",
 		action: "Marcar entregada",
+		actionVariant: "default",
 	},
 	FINISHED: {
 		label: "Entregado",
 		icon: CircleCheck,
-		band: "bg-status-delivered text-ink",
+		tone: "border-chart-2/40 bg-chart-3 text-chart-5",
+		band: "bg-chart-2",
 		next: "IN_PREPARATION",
 		action: "Reabrir comanda",
+		actionVariant: "outline",
 	},
 };
 
-export type TimerLevel = "ok" | "warn" | "late" | "stopped";
-
-const WARN_AFTER_S = 5 * 60;
-const LATE_AFTER_S = 10 * 60;
-
-export const timerLevel = (seconds: number, finished: boolean): TimerLevel => {
-	if (finished) return "stopped";
-	if (seconds < WARN_AFTER_S) return "ok";
-	if (seconds < LATE_AFTER_S) return "warn";
-	return "late";
-};
-
-export const formatClock = (seconds: number): string => {
-	const minutes = Math.floor(seconds / 60);
-	const rest = seconds % 60;
-	return `${String(minutes).padStart(2, "0")}:${String(rest).padStart(2, "0")}`;
-};
+/**
+ * Status shown on screen. Like the design, an undelivered order that has waited
+ * 10 minutes is shown as Urgente; the API status is not changed.
+ */
+export const displayStatus = (order: Order, seconds: number): OrderStatus =>
+	order.status !== "FINISHED" && seconds >= URGENT_AFTER_S
+		? "DELAYED"
+		: order.status;

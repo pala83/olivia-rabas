@@ -1,0 +1,20 @@
+{
+	"$schema": "https://openapi.vercel.sh/vercel.json",
+	"bunVersion": "1.4.x",
+	"services": {
+		"client": {
+			"root": "client",
+			"framework": "vite"
+		},
+		"api": {
+			"root": "api",
+			"entrypoint": "src/main.ts",
+			"buildCommand": "bun run db:migrate"
+		}
+	},
+	"rewrites": [
+		{ "source": "/api/(.*)", "destination": { "service": "api" } },
+		{ "source": "/ws", "destination": { "service": "api" } },
+		{ "source": "/(.*)", "destination": { "service": "client" } }
+	]
+}
