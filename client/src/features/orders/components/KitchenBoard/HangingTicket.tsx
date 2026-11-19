@@ -68,7 +68,7 @@ export function HangingTicket({
 		>
 			<span
 				aria-hidden="true"
-				className="absolute -top-[9px] left-1/2 z-1 -ml-[18px] h-3.5 w-9 rounded bg-[linear-gradient(180deg,#EEF0F2,#9AA1A8)] shadow-[0_1px_2px_rgb(0_0_0/0.35)]"
+				className="absolute -top-2.25 left-1/2 z-1 -ml-4.5 h-3.5 w-9 rounded bg-[linear-gradient(180deg,#EEF0F2,#9AA1A8)] shadow-[0_1px_2px_rgb(0_0_0/0.35)]"
 			/>
 			<OrderTicket order={order} now={now} onAdvance={onAdvance} />
 		</div>

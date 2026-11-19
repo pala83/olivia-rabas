@@ -44,7 +44,7 @@ export function BoardLane({ status, orders, now, onAdvance }: BoardLaneProps) {
 			ref={ref}
 			aria-label={STATUS_VIEW[status].label}
 			className={cn(
-				"flex min-h-80 min-w-[300px] flex-1 flex-col gap-3.5 rounded-xl border p-3 transition-colors duration-200",
+				"flex min-h-80 min-w-75 flex-1 flex-col gap-3.5 rounded-xl border p-3 transition-colors duration-200",
 				isOver
 					? "border-ring bg-[rgb(255_244_214/0.75)]"
 					: "border-white/50 bg-white/22",

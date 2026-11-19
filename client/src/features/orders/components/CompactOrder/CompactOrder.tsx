@@ -22,7 +22,7 @@ export function CompactOrder({ order, now, isNew = false }: CompactOrderProps) {
 		<article
 			aria-label={`Comanda #${order.id}, ${order.customerName}, ${view.label}`}
 			className={cn(
-				"tx-ticket relative flex items-center gap-4 overflow-hidden rounded-lg border border-border py-4 pr-4 pl-[22px] shadow-xs",
+				"tx-ticket relative flex items-center gap-4 overflow-hidden rounded-lg border border-border py-4 pr-4 pl-5.5 shadow-xs",
 				isNew
 					? "animate-[kds-new_0.4s_ease-out_both]"
 					: "animate-[kds-in_0.28s_ease-out_both]",
@@ -35,7 +35,7 @@ export function CompactOrder({ order, now, isNew = false }: CompactOrderProps) {
 			<StatusSquare status={status} />
 			<div className="flex min-w-0 flex-1 flex-col gap-1">
 				<div className="flex items-baseline gap-2">
-					<span className="truncate text-sm leading-[18px] font-medium">
+					<span className="truncate text-sm leading-4.5 font-medium">
 						{order.customerName}
 					</span>
 					<span className="font-mono text-sm text-muted-foreground">
