@@ -109,16 +109,26 @@ El monorepo se deploya como **un único proyecto de Vercel** usando [Services](h
 
 | Servicio | Carpeta | Qué hace en Vercel |
 | -------- | ------- | ------------------ |
-| `web` | `client/` | Build de Vite, servido como sitio estático. |
-| `api` | `api/` | `src/main.ts` corre como Vercel Function con el [runtime de Bun](https://vercel.com/docs/functions/runtimes/bun) (`bunVersion`). Su comando de build es `bun run db:migrate`. |
+| `client` | `client/` | Build de Vite, servido como sitio estático. |
+| `api` | `api/` | `src/main.ts` corre como Vercel Function con el [runtime de Bun](https://vercel.com/docs/functions/runtimes/bun) (`"bunVersion": "1.4.x"`; en Vercel, `"1.x"` es Bun 1.3). Su comando de build es `bun run db:migrate`. |
 
-Las `rewrites` mandan `/api/*` y `/ws` al servicio `api`, y todo lo demás al `web`. Como cliente y API comparten dominio, el cliente usa las mismas rutas relativas que en desarrollo y no necesita configuración extra.
+Las `rewrites` mandan `/api/*` y `/ws` al servicio `api`, y todo lo demás al `client`. Los dos servicios son públicos y no hay *bindings*: ningún servicio llama a otro, porque es el navegador el que llama a `/api` y `/ws`. Como cliente y API comparten dominio, el cliente usa las mismas rutas relativas que en desarrollo y no necesita configuración extra.
 
 ### Diferencias con el entorno local
 
 - **Base de datos: Turso.** Las funciones de Vercel tienen el disco de solo lectura (salvo `/tmp`, que se borra), así que en producción no se puede usar el archivo SQLite local.
 - **Migraciones en el deploy.** El build del servicio `api` corre `bun run db:migrate` contra Turso. En Vercel la función no migra al arrancar: `main.ts` pasa `migrate: false` cuando existe la variable `VERCEL`. El seed sí corre al arrancar, y solo carga datos si `PRODUCTO` está vacía.
 - **Tiempo real.** En Vercel, cada instancia de la función reparte los eventos de `/ws` solo entre sus propias conexiones, y la conexión se corta al llegar a la duración máxima de la función. Por eso el cliente, además del WebSocket, recarga las comandas cada 5 segundos y cada vez que la pestaña vuelve a estar visible. Una comanda nueva puede tardar hasta 5 segundos en aparecer en otra pantalla.
+
+### Ramas y entornos
+
+| Rama | Entorno de Vercel | Base de datos |
+| ---- | ----------------- | ------------- |
+| `main` | Production | Turso |
+| `experimental` | Preview | La misma base de Turso que producción |
+| Otras ramas | Preview, sin variables de Turso | Ninguna: su deploy no funciona, a propósito |
+
+Como `experimental` comparte la base con producción, cada deploy de `experimental` corre sus migraciones sobre la base real, y sus comandas de prueba se mezclan con las reales. Por eso las variables de Turso en Preview se cargan **solo para la rama `experimental`**.
 
 ### Pasos
 
@@ -130,14 +140,12 @@ Las `rewrites` mandan `/api/*` y `/ws` al servicio `api`, y todo lo demás al `w
    turso db tokens create olivia-rabas    # → TURSO_AUTH_TOKEN
    ```
 
-2. **Importar el repositorio en Vercel** como un solo proyecto. Elegir el framework preset **Services**, dejar el *Root Directory* en la raíz y verificar que **Fluid compute** esté activado: lo necesitan los WebSockets.
-3. **Cargar las variables de entorno** del proyecto:
-   - `DB_TARGET=turso`
-   - `TURSO_DATABASE_URL`
-   - `TURSO_AUTH_TOKEN`
-
-   Cargalas **solo para Production**, o apuntá Preview a otra base de Turso. Si no, cada deploy de preview corre las migraciones sobre la base de producción.
-4. **Deployar.** Hacé push a la rama de producción, o corré `vercel --prod` con la [CLI de Vercel](https://vercel.com/docs/cli).
-5. **Comprobar** que respondan `/api/products`, `/` y `/cocina`; en `/cocina`, entrando directo y también recargando la página.
+   Para probarla desde tu máquina, poné esos valores y `DB_TARGET=turso` en `api/.env` y corré `bun run db:migrate` en `api/`. Mientras `api/.env` diga `DB_TARGET=turso`, `bun dev` también trabaja sobre la base real.
+2. **Importar el repositorio en Vercel** (*Add New → Project*). Elegir el framework preset **Services** y dejar el *Root Directory* en la raíz.
+3. **Rama de producción:** en *Settings → Environments → Production → Branch Tracking*, poner `main`.
+4. **Variables de entorno** (*Settings → Environment Variables*): `DB_TARGET=turso`, `TURSO_DATABASE_URL` y `TURSO_AUTH_TOKEN`, este último marcado como *Sensitive*. Cargalas en **Production** y en **Preview, eligiendo solo la rama `experimental`**.
+5. **Fluid compute:** en *Settings → Functions*, verificar que esté activado. Lo necesitan los WebSockets.
+6. **Deploy de preproducción:** cada push a `experimental` genera un deploy de Preview. Revisar que respondan `/api/products`, `/` y `/cocina` (entrando directo y también recargando la página), crear una comanda y moverla de columna.
+7. **Producción:** pasar `experimental` a `main`, con un PR o con `git checkout main && git merge --ff-only experimental && git push origin main`. Ese push publica producción.
 
 El runtime de Bun en Vercel está en **beta**. Para probar el build sin deployar: `vercel pull` y después `vercel build`, con el proyecto ya vinculado.
